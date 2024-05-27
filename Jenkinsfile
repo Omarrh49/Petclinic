@@ -3,6 +3,7 @@ pipeline {
     tools {
         jdk 'jdk17'
         maven 'maven'
+        zap 'ZAP'
     }
     environment {
         SCANNER_HOME = tool 'sonar-scanner'
@@ -30,9 +31,9 @@ pipeline {
         stage('Sonar Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Devops-CICD \
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Devops- \
                     -Dsonar.java.binaries=. \
-                    -Dsonar.projectKey=Devops-CICD'''
+                    -Dsonar.projectKey=Devops-'''
                 }
             }
         }
@@ -82,21 +83,28 @@ pipeline {
             }
         }
         
-         stage('Deploy') {
+        stage('Deploy') {
             steps {
-                  sh "docker run -d --name petclinic -p 5000:5000 omarrh/petclinic:latest"
-
+                sh "docker run -d --name petclinica -p 5000:5000 omarrh/petclinic:latest"
             }
         }
-        stage ("Docker run Dastardly from Burp Suite Scan") {
+
+        
+        stage('Security Scan with ZAP') {
             steps {
-                cleanWs()
-                sh '''
-                    docker run --user $(id -u) -v ${WORKSPACE}:${WORKSPACE}:rw \
-                    -e BURP_START_URL=https://ginandjuice.shop/ \
-                    -e BURP_REPORT_FILE_PATH=${WORKSPACE}/dastardly-report.xml \
-                    public.ecr.aws/portswigger/dastardly:latest
-                '''
+                script {
+                    def zapHome = tool 'ZAP'
+                    sh "${zapHome}/zap.sh -daemon -host 0.0.0.0 -port 8082 > zap.log 2>&1 &"
+                    sleep(time: 60, unit: 'SECONDS')
+                    sh "curl http://localhost:8082/JSON/core/view/version"
+                    sh "${zapHome}/zap.sh -quickurl http://localhost:5000 -quickout zap-report.html -htmlreport"
+                }
+            }
+        }
+
+        stage('Publish ZAP Report') {
+            steps {
+                publishHTML(reportDir: '', reportFiles: 'zap-report.html', reportName: 'ZAP Report')
             }
         }
     }
