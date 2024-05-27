@@ -89,14 +89,11 @@ pipeline {
         }
 
         
-        stage('Security Scan with ZAP') {
+         stage('Security Scan with ZAP') {
             steps {
                 script {
-                    def zapHome = tool 'ZAP'
-                    sh "${zapHome}/zap.sh -daemon -host 0.0.0.0 -port 8082 > zap.log 2>&1 &"
-                    sleep(time: 60, unit: 'SECONDS')
-                    sh "curl http://localhost:8082/JSON/core/view/version"
-                    sh "${zapHome}/zap.sh -quickurl http://localhost:5000 -quickout zap-report.html -htmlreport"
+                    sh "chmod +x zap.sh"
+                    sh "sudo bash zap.sh"
                 }
             }
         }
