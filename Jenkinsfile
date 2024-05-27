@@ -93,7 +93,7 @@ pipeline {
             steps {
                 script {
                     sh "chmod +x zap.sh"
-                    sh "sudo bash zap.sh"
+                    sh "./zap.sh"
                 }
             }
         }
