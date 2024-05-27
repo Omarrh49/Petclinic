@@ -103,9 +103,16 @@ pipeline {
         }
 
         stage('Publish ZAP Report') {
-            steps {
-                publishHTML(reportDir: '', reportFiles: 'zap-report.html', reportName: 'ZAP Report')
-            }
-        }
+    steps {
+        publishHTML(target: [
+            reportName: 'ZAP Report', 
+            reportDir: 'owasp-zap-report', 
+            reportFiles: 'zap_report.html', 
+            keepAll: true, 
+            alwaysLinkToLastBuild: true, 
+            allowMissing: false
+        ])
+    }
+}
     }
 }
