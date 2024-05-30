@@ -333,7 +333,12 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>${maven-war-plugin.version}</version>
                 <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
+
+                    < <archive>
+                    <manifest>
+                        <mainClass>PetclinicInitializer</mainClass> <!-- Remplacez com.example.MainClass par votre classe principale -->
+                    </manifest>
+                </archive>
                 </configuration>
             </plugin>
 
