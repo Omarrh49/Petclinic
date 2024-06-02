@@ -334,7 +334,7 @@
                 <version>${maven-war-plugin.version}</version>
                 <configuration>
 
-                    < <archive>
+                    <archive>
                     <manifest>
                         <mainClass>PetclinicInitializer</mainClass> <!-- Remplacez com.example.MainClass par votre classe principale -->
                     </manifest>
