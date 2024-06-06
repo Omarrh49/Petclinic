@@ -78,7 +78,7 @@
 
         <!-- Docker image -->
         <docker.jib-maven-plugin.version>2.6.0</docker.jib-maven-plugin.version>
-        <docker.image.prefix>petclinic</docker.image.prefix>
+        <docker.image.prefix>springcommunity</docker.image.prefix>
 
     </properties>
 
@@ -333,12 +333,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>${maven-war-plugin.version}</version>
                 <configuration>
-
-                    <archive>
-                    <manifest>
-                        <mainClass>PetclinicInitializer</mainClass> <!-- Remplacez com.example.MainClass par votre classe principale -->
-                    </manifest>
-                </archive>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
 
@@ -558,5 +553,4 @@
         </repository>
     </repositories>
 
-</project> 
-        
+</project>
