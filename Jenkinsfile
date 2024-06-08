@@ -16,7 +16,7 @@ pipeline {
         
         stage('Code Compile') {
             steps {
-                sh "mvn clean compile"
+                sh "mvn clean package"
             }
         }
         
@@ -30,9 +30,9 @@ pipeline {
         stage('Sonar Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Devops- \
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Devops-1 \
                     -Dsonar.java.binaries=. \
-                    -Dsonar.projectKey=Devops-'''
+                    -Dsonar.projectKey=Devops-1'''
                 }
             }
         }
@@ -62,7 +62,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    sh "docker build -t petclinic ."
+                    sh "docker build -t omarrh/petclinic ."
                 }
             }
         }
@@ -76,15 +76,15 @@ pipeline {
         stage('Docker Push') {
             steps {
                 script {
-                    sh "docker tag petclinic omarrh/petclinic:latest"
+                    sh "docker tag omarrh/petclinic omarrh/petclinic:latest"
                     sh "docker push omarrh/petclinic:latest"
                 }
             }
         }
         
-        stage('Deploy') {
-            steps {
-                sh "docker run -d --name petclinica -p 5000:5000 omarrh/petclinic:latest"
+       stage("Deploy To Tomcat"){
+            steps{
+                sh "cp  /var/lib/jenkins/workspace/DevSecOps/target/petclinic.war /opt/apache-tomcat-9.0.65/webapps/ "
             }
         }
 
