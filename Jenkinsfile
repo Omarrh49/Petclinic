@@ -69,7 +69,7 @@ pipeline {
         
         stage('Trivy') {
             steps {
-                sh "trivy image omarrh/petclinic:latest > trivy.txt"
+                sh "trivy image --timeout 5m omarrh/petclinic:latest > trivy.txt"
             }
         }
         
