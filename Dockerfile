@@ -11,7 +11,7 @@
 
 FROM tomcat:9.0
 
-COPY ./petclinic.war /usr/local/tomcat/webapps/
+COPY ./target/petclinic.war /usr/local/tomcat/webapps/
 
 
 EXPOSE 8080
