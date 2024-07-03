@@ -5,6 +5,15 @@
 #ADD target/petclinic.war petclinic.war
 #ENTRYPOINT ["java","-jar","petclinic.war"]
 
-FROM tomcat:9.0.65-jdk17
-COPY target/petclinic.war /usr/local/tomcat/webapps/
-EXPOSE 8082
+#FROM tomcat:9.0.65-jdk17
+#COPY target/petclinic.war /usr/local/tomcat/webapps/
+#EXPOSE 8082
+
+FROM tomcat:9.0
+
+COPY ./petclinic.war /usr/local/tomcat/webapps/
+
+
+EXPOSE 8080
+
+CMD ["catalina.sh", "run"]
