@@ -80,24 +80,48 @@ pipeline {
                 }
             }
         }
-        
-       stage("Deploy To Tomcat"){
-            steps{
-                sh "cp  /var/lib/jenkins/workspace/DevSecOps/target/petclinic.war /opt/apache-tomcat-9.0.65/webapps/ "
+
+            stage('Deploy') {
+            steps {
+                sh "docker-compose up -d"
+                sleep 40
             }
         }
 
+        stage('Security Scan with ZAP') {
+        steps {
+            script {
+              sh '''
+                docker run --network=host -v ${WORKSPACE}:/zap/wrk/:rw  
+                ghcr.io/zaproxy/zaproxy:weekly zap-api-scan.py  
+                -t http://localhost:8080/petclinic/owners/find 
+                    -f openapi -r zap_report.html || true
+                '''
+            
+                
+            }
+        }
+    }
+
+
         
-         stage('Security Scan with ZAP') {
+       /*stage("Deploy To Tomcat"){
+            steps{
+                sh "cp  /var/lib/jenkins/workspace/DevSecOps/target/petclinic.war /opt/apache-tomcat-9.0.65/webapps/ "
+            }
+        }*/
+
+        
+         /*stage('Security Scan with ZAP') {
             steps {
                 script {
                     sh "chmod +x zap.sh"
                     sh "./zap.sh"
                 }
             }
-        }
+        }*/
 
-        stage('Publish ZAP Report') {
+        /*stage('Publish ZAP Report') {
     steps {
         publishHTML(target: [
             reportName: 'ZAP Report', 
@@ -107,7 +131,7 @@ pipeline {
             alwaysLinkToLastBuild: true, 
             allowMissing: false
         ])
-    }
+    }*/
 }
     }
 }
