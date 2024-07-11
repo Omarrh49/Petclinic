@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/omarrh49/Petclinic.git'
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/Omarrh49/Petclinic.git'
             }
         }
         
@@ -30,9 +30,9 @@ pipeline {
         stage('Sonar Analysis') {
             steps {
                 withSonarQubeEnv('sonar-server') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Devops-1 \
+                    sh '''$SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Devops-CICD0 \
                     -Dsonar.java.binaries=. \
-                    -Dsonar.projectKey=Devops-1'''
+                    -Dsonar.projectKey=Devops-CICD0'''
                 }
             }
         }
@@ -53,7 +53,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'docker', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                     sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"                    }
+                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                    }
                 }
             }
         }
@@ -68,70 +69,39 @@ pipeline {
         
         stage('Trivy') {
             steps {
-                sh "trivy image --timeout 10m omarrh/petclinic:latest > trivy.txt"
+                sh "trivy image --timeout 5m omarrh/petclinic:latest > trivy.txt"
             }
         }
         
         stage('Docker Push') {
             steps {
                 script {
-                    sh "docker tag omarrh/petclinic omarrh/petclinic:latest"
+                    sh "docker tag omarrh/petclinic  omarrh/petclinic:latest"
                     sh "docker push omarrh/petclinic:latest"
                 }
             }
         }
-
-            stage('Deploy') {
+        
+        
+        stage('Deploy') {
             steps {
                 sh "docker-compose up -d"
                 sleep 40
             }
         }
-
-        stage('Security Scan with ZAP') {
+        
+    
+        
+    stage('Security Scan with ZAP') {
         steps {
             script {
-              sh '''
-                docker run --network=host -v ${WORKSPACE}:/zap/wrk/:rw  
-                ghcr.io/zaproxy/zaproxy:weekly zap-api-scan.py  
-                -t http://localhost:8080/petclinic/owners/find 
-                    -f openapi -r zap_report.html || true
-                '''
+              sh "docker run --network=host -v ${WORKSPACE}:/zap/wrk/:rw  ghcr.io/zaproxy/zaproxy:weekly zap-api-scan.py  -t http://localhost:8080/petclinic/owners/find -f openapi -r zap_report.html || true" 
             
                 
             }
         }
     }
-
-
         
-       /*stage("Deploy To Tomcat"){
-            steps{
-                sh "cp  /var/lib/jenkins/workspace/DevSecOps/target/petclinic.war /opt/apache-tomcat-9.0.65/webapps/ "
-            }
-        }*/
-
         
-         /*stage('Security Scan with ZAP') {
-            steps {
-                script {
-                    sh "chmod +x zap.sh"
-                    sh "./zap.sh"
-                }
-            }
-        }*/
-
-        /*stage('Publish ZAP Report') {
-    steps {
-        publishHTML(target: [
-            reportName: 'ZAP Report', 
-            reportDir: 'owasp-zap-report', 
-            reportFiles: 'zap_report.html', 
-            keepAll: true, 
-            alwaysLinkToLastBuild: true, 
-            allowMissing: false
-        ])
-    }*/
-}
     }
 }
